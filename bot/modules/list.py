@@ -25,10 +25,14 @@ def list_drive(update, context):
     editMessage(msg, reply, button)
 
 def list_clone_drives(update, context):
-    drives = ''
-    for i in range(len(DRIVE_NAMES)):
-        drives += f'{i+1}. {DRIVE_NAMES[i]} - <code>{DRIVE_IDS[i]}</code>\n'
-    sendMessage(f'<b><u>Your Drives</u></b>\n\n{drives}\n', context.bot, update.message)
+    reply = sendMessage('<b>Listing Your Drives...</b>', context.bot, update.message)
+    gd = GoogleDriveHelper()
+    try:
+        msg, button = gd.list_clone_drives()
+    except Exception as e:
+        msg, button = "There was an error", None
+        LOGGER.exception(e)
+    editMessage(msg, reply, button)
 
 list_handler = CommandHandler(BotCommands.ListCommand, list_drive,
                               filters=CustomFilters.authorized_chat | CustomFilters.authorized_user, run_async=True)

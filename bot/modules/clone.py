@@ -23,7 +23,7 @@ def cloneNode(update, context):
     link = ''
     clone_drive_name = None
     clone_folder_id = None
-    clone_bm = None
+    clone_id = None
     if len(args) > 1:
         if "-drive" in args[1]:
             clone_drive_name = args[1].split("-drive")[1].strip().split(" ")[0]
@@ -32,8 +32,13 @@ def cloneNode(update, context):
             clone_folder_id = args[1].split("-folder")[1].strip().split(" ")[0]
             link = args[1].split("-folder")[1].strip().split(" ")[1]
         elif "-bm" in args[1]:
-            clone_bm = args[1].split("-bm")[1].strip().split(" ")[0]
-            link = args[1].split("-bm")[1].strip().split(" ")[1]
+            try:
+                clone_bm = args[1].split("-bm")[1].strip().split(" ")[0]
+                clone_id = MY_BOOKMARKS[clone_bm]
+                link = args[1].split("-bm")[1].strip().split(" ")[1]
+            except KeyError:
+                sendMessage("<b>⚠️ Bookmark not found</b>", context.bot, update.message)
+                return
         else:
             link = args[1]
     if reply_to is not None:
@@ -77,9 +82,8 @@ def cloneNode(update, context):
                 result = gd.clone(link, clone_drive)
             elif clone_folder_id is not None:
                 result = gd.clone(link, clone_folder_id)
-            elif clone_bm is not None:
-                print(MY_BOOKMARKS[clone_bm])
-                result = gd.clone(link, MY_BOOKMARKS[clone_bm])
+            elif clone_id is not None:
+                result = gd.clone(link, clone_id)
             else:
                 result = gd.clone(link)
             deleteMessage(context.bot, msg)
@@ -96,8 +100,8 @@ def cloneNode(update, context):
                 result = drive.clone(link, clone_drive)
             elif clone_folder_id is not None:
                 result = drive.clone(link, clone_folder_id)
-            elif clone_bm is not None:
-                result = drive.clone(link, MY_BOOKMARKS.get(clone_bm))
+            elif clone_id is not None:
+                result = drive.clone(link, clone_id)
             else:
                 result = drive.clone(link)
             with download_dict_lock:

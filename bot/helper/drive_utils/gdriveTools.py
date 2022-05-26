@@ -464,7 +464,7 @@ class GoogleDriveHelper:
             if response['files']:
                 self.response[request_id] = response
 
-    def drive_query(self, DRIVE_IDS, search_type, file_name):
+    def drive_query(self, search_type, file_name, DRIVE_IDS=DRIVE_IDS):
         batch = self.__service.new_batch_http_request(self.receive_callback)
         query = f"name contains '{file_name}' and "
         if search_type is not None:
@@ -505,7 +505,7 @@ class GoogleDriveHelper:
         search_drive = None
         if re.search("-drive", file_name, re.IGNORECASE):
             search_drive = file_name.split("-drive")[1].strip().split(" ")[0]
-            DRIVE_IDS = [self.get_drive_id_from_name(search_drive)]
+            DRIVE_IDS_LIST = [self.get_drive_id_from_name(search_drive)]
             if re.search("^-d ", file_name, re.IGNORECASE):
                 search_type = '-d'
             elif re.search("^-f ", file_name, re.IGNORECASE):
@@ -528,7 +528,10 @@ class GoogleDriveHelper:
         token_service = self.alt_authorize()
         if token_service is not None:
             self.__service = token_service
-        self.drive_query(DRIVE_IDS, search_type, file_name)
+        if search_drive is not None:
+            self.drive_query(search_type, file_name, DRIVE_IDS_LIST)
+        else:
+            self.drive_query(search_type, file_name)
         add_title_msg = True
         for files in self.response:
             if search_drive is not None:
@@ -591,11 +594,63 @@ class GoogleDriveHelper:
                     telegraph[(acc_no - 1) if i % page_per_acc == 0 else acc_no],
                     self.telegraph_content[i-1],
                     self.path[i-1])
-
-        msg = f"<b>Found {response_count} results matching '{file_name}' in {len(DRIVE_IDS)} Drives</b> " \
+        if search_drive is not None:
+            len_drv = len(DRIVE_IDS_LIST)
+        else:
+            len_drv = len(DRIVE_IDS)
+        msg = f"<b>Found {response_count} results matching '{file_name}' in {len_drv} Drives</b> " \
               f"<b>(Time taken {round(time.time() - start_time, 2)}s)</b>"
         button = ButtonMaker()
         button.build_button("VIEW RESULTS 🗂️", f"https://telegra.ph/{self.path[0]}")
+        return msg, InlineKeyboardMarkup(button.build_menu(1))
+
+    def list_clone_drives(self):
+        msg = ''
+        acc_no = -1
+        page_per_acc = 2
+        drives_count = 0
+        total_acc = len(telegraph)
+        msg += "<h4>Your Drives</h4><br>"
+        for drive in DRIVE_NAMES:
+            msg += f"<code>{drive}</code> - <code>{DRIVE_IDS[DRIVE_NAMES.index(drive)]}</code><br>"
+            drives_count += 1
+            if drives_count % telegraph_limit == 0:
+                self.telegraph_content.append(msg)
+                msg = ''
+        
+        if msg != '':
+            self.telegraph_content.append(msg)
+        total_pages = len(self.telegraph_content)
+        if total_pages == 0:
+            return "<b>Found nothing :(</b>", None
+
+        for i in range(total_pages):
+            if i % page_per_acc == 0:
+                acc_no = (acc_no+1) % total_acc
+
+            if i != 0:
+                # Add previous page link
+                self.telegraph_content[i] += f'<b><a href="https://telegra.ph/{self.path[i-1]}">Previous</a>' \
+                                             f' | Page {i+1}/{total_pages}</b>'
+            else:
+                self.telegraph_content[i] += f'<b>Page {i+1}/{total_pages}</b>'
+
+            self.create_page(
+                telegraph[acc_no],
+                self.telegraph_content[i])
+
+            if i != 0:
+                # Edit previous page to add next page link
+                self.telegraph_content[i-1] += f'<b> | <a href="https://telegra.ph/{self.path[i]}">Next</a></b>'
+
+                self.edit_page(
+                    telegraph[(acc_no - 1) if i % page_per_acc == 0 else acc_no],
+                    self.telegraph_content[i-1],
+                    self.path[i-1])
+                
+        msg = f"<b>Found {drives_count} Drives</b>"
+        button = ButtonMaker()
+        button.build_button("VIEW DRIVES 💾", f"https://telegra.ph/{self.path[0]}")
         return msg, InlineKeyboardMarkup(button.build_menu(1))
 
     def create_page(self, acc, content):
