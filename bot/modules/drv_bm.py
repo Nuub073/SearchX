@@ -51,12 +51,11 @@ def rm_bookmark(update, context):
 def list_bookmarks(update, context):
     if DATABASE_URL is not None:
         reply = sendMessage('<b>Fetching Bookmarks...</b>', context.bot, update.message)
-        db = DatabaseHelper()
-        bm_dict = db.get_bms()
+        bm_list = MY_BOOKMARKS
         bm_string = ''
-        for bm in bm_dict:
-            bm_string += f'<code>{bm}</code> - <code>{bm_dict[bm]}</code>\n'
-        if len(bm_dict) == 0:
+        for bm in bm_list:
+            bm_string += f'<code>{bm}</code> - <code>{bm_list[bm]}</code>\n'
+        if len(bm_list) == 0:
             bm_string = '<code>No Bookmarks</code>'
         editMessage(f'<b><u>Bookmarks</u></b>\n\n{bm_string}', reply)
     else:

@@ -15,6 +15,17 @@ from bot.helper.telegram_helper.message_utils import sendMessage, editMessage, d
 from bot.helper.telegram_helper.bot_commands import BotCommands
 from bot.helper.telegram_helper.filters import CustomFilters
 
+def FromArgs(args, flag):
+    try:
+        link = args[1].split(flag)[1].strip().split(" ")[1]
+    except:
+        link = ''
+    try:
+        val = args[1].split(flag)[1].strip().split(" ")[0]
+    except:
+        val = None
+    return link, val
+
 @new_thread
 def cloneNode(update, context):
     LOGGER.info(f"User: {update.message.from_user.first_name} [{update.message.from_user.id}]")
@@ -26,23 +37,24 @@ def cloneNode(update, context):
     clone_id = None
     if len(args) > 1:
         if "-drive" in args[1]:
-            clone_drive_name = args[1].split("-drive")[1].strip().split(" ")[0]
-            link = args[1].split("-drive")[1].strip().split(" ")[1]
+            try:
+                link, clone_drive_name = FromArgs(args, "-drive")
+                clone_drive = drive.get_drive_id_from_name(clone_drive_name)
+            except:
+                sendMessage(f"<code>{clone_drive_name}</code> - <b>⚠️ Drive not found in drive_list</b>", context.bot, update.message)
+                return
         elif "-folder" in args[1]:
-            clone_folder_id = args[1].split("-folder")[1].strip().split(" ")[0]
-            link = args[1].split("-folder")[1].strip().split(" ")[1]
+            link, clone_folder_id = FromArgs(args, "-folder")
         elif "-bm" in args[1]:
             try:
-                clone_bm = args[1].split("-bm")[1].strip().split(" ")[0]
+                link, clone_bm = FromArgs(args, "-bm")
                 clone_id = MY_BOOKMARKS[clone_bm]
-                link = args[1].split("-bm")[1].strip().split(" ")[1]
             except KeyError:
-                sendMessage("<b>⚠️ Bookmark not found</b>", context.bot, update.message)
+                sendMessage(f"<code>{clone_bm}</code> - <b>⚠️ Bookmark not found</b>", context.bot, update.message)
                 return
         else:
             link = args[1]
     if reply_to is not None:
-        if len(link) == 0:
             link = reply_to.text
     is_appdrive = is_appdrive_link(link)
     is_gdtot = is_gdtot_link(link)
@@ -78,7 +90,6 @@ def cloneNode(update, context):
             msg = sendMessage(f"<b>Cloning:</b> <code>{link}</code>", context.bot, update.message)
             LOGGER.info(f"Cloning: {link}")
             if clone_drive_name is not None:
-                clone_drive = gd.get_drive_id_from_name(clone_drive_name)
                 result = gd.clone(link, clone_drive)
             elif clone_folder_id is not None:
                 result = gd.clone(link, clone_folder_id)
@@ -96,7 +107,6 @@ def cloneNode(update, context):
             sendStatusMessage(update.message, context.bot)
             LOGGER.info(f"Cloning: {link}")
             if clone_drive_name is not None:
-                clone_drive = drive.get_drive_id_from_name(clone_drive_name)
                 result = drive.clone(link, clone_drive)
             elif clone_folder_id is not None:
                 result = drive.clone(link, clone_folder_id)
