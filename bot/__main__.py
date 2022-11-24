@@ -63,7 +63,7 @@ help_string_user = f'''
 <br><br>
 • <b>/{BotCommands.ListCommand}</b> &lt;query&gt;: Search data on Drives
 <br><br>
-• <b>/{BotCommands.ListCommand} -drive &lt;Drive Name&gt;</b> &lt;query&gt;: Search data on Specific Drive (Must be in drive_list) [-f and -d, if used, should be placed before -drive]
+• <b>/{BotCommands.ListCommand} -drive</b> &lt;Drive Name&gt; &lt;query&gt;: Search data on Specific Drive (Must be in drive_list) [-f and -d, if used, should be placed before -drive]
 <br><br>
 • <b>/{BotCommands.ListCommand} -d</b> &lt;query&gt;: Search folders on Drives
 <br><br>
@@ -71,11 +71,11 @@ help_string_user = f'''
 <br><br>
 • <b>/{BotCommands.CloneCommand}</b> &lt;url&gt;: Copy data from Drive / AppDrive / DriveApp / GDToT to Drive
 <br><br>
-• <b>/{BotCommands.CloneCommand} -drive &lt;Drive Name&gt;</b> &lt;url&gt;: Copy data to Specific Drive (Must be in drive_list)
+• <b>/{BotCommands.CloneCommand} -drive</b> &lt;Drive Name&gt; &lt;url&gt;: Copy data to Specific Drive (Must be in drive_list)
 <br><br>
-• <b>/{BotCommands.CloneCommand} -folder &lt;Folder_ID&gt;</b> &lt;url&gt;: Copy data to Specific Folder/Drive using it's ID
+• <b>/{BotCommands.CloneCommand} -folder</b> &lt;Folder_ID&gt; &lt;url&gt;: Copy data to Specific Folder/Drive using it's ID
 <br><br>
-• <b>/{BotCommands.CloneCommand} -bm &lt;bookmark name&gt;</b> &lt;url&gt;: Copy data to Specific Folder/Drive bookmarked to DataBase
+• <b>/{BotCommands.CloneCommand} -bm</b> &lt;bookmark name&gt; &lt;url&gt;: Copy data to Specific Folder/Drive bookmarked to DataBase
 <br><br>
 • <b>/{BotCommands.CountCommand}</b> &lt;drive_url&gt;: Count data of Drive
 <br><br>
