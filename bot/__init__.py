@@ -229,10 +229,10 @@ if os.path.exists('drive_list'):
 
 def create_account(sname):
     try:
-        telegra_ph = Telegraph()
+        telegra_ph = Telegraph(domain='graph.org')
         telegra_ph.create_account(short_name=sname)
         telegraph_token = telegra_ph.get_access_token()
-        telegraph.append(Telegraph(access_token=telegraph_token))
+        telegraph.append(Telegraph(access_token=telegraph_token, domain='graph.org'))
         time.sleep(0.5)
     except RetryAfterError as e:
         LOGGER.info(f"Cooldown: {e.retry_after} seconds")
