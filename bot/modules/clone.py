@@ -39,7 +39,8 @@ def cloneNode(update, context):
         if "-drive" in args[1]:
             try:
                 link, clone_drive_name = FromArgs(args, "-drive")
-                clone_drive = drive.get_drive_id_from_name(clone_drive_name)
+                gd = GoogleDriveHelper()
+                clone_drive = gd.get_drive_id_from_name(clone_drive_name)
             except:
                 sendMessage(f"<code>{clone_drive_name}</code> - <b>⚠️ Drive not found in drive_list</b>", context.bot, update.message)
                 return
